@@ -33,20 +33,21 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("content", schedule.getContent());
-        parameters.put("author", schedule.getAuthor());
+        parameters.put("member_id", schedule.getMemberId());
         parameters.put("password", schedule.getPassword());
         parameters.put("created_at", LocalDateTime.now());
         parameters.put("updated_at", LocalDateTime.now());
 
         Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
-        return new ScheduleResponseDto(key.longValue(), schedule.getContent(), schedule.getAuthor(), schedule.getCreateDate(), schedule.getModifiedDate());
+        return new ScheduleResponseDto(key.longValue(), schedule.getContent(), schedule.getMemberId(), LocalDateTime.now(), LocalDateTime.now());
     }
 
     @Override
-    public List<ScheduleResponseDto> findScheduleByAuthorOrModifiedDate(String author, String modifiedDate) {
+    public List<ScheduleResponseDto> findScheduleByAuthorOrModifiedDate(Long memberId, String modifiedDate) {
         return jdbcTemplate.query(
-                "select id, content, author, created_at, updated_at from schedule where author = ? || date(updated_at) = ?  || author != ? || date(updated_at) != ? order by updated_at desc",
-                scheduleRowMapper(), author, modifiedDate, author, modifiedDate);
+                "select id, content, member_id, created_at, updated_at from schedule " +
+                        "where member_id = ? || date(updated_at) = ?  || member_id != ? || date(updated_at) != ? order by updated_at desc",
+                scheduleRowMapper(), memberId, modifiedDate, memberId, modifiedDate);
     }
 
     @Override
@@ -56,14 +57,19 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
     }
 
     @Override
+    public List<ScheduleResponseDto> findScheduleByMemberIdOrElseThrow(Long memberId) {
+        return jdbcTemplate.query("select * from schedule where member_id = ?", scheduleRowMapper(), memberId);
+    }
+
+    @Override
     public Schedule findSchedulePasswordByIdOrElseThrow(Long id) {
         List<Schedule> result = jdbcTemplate.query("select * from schedule where id = ?", scheduleRowMapperV3(), id);
         return result.stream().findAny().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id));
     }
 
     @Override
-    public int updateSchedule(Long id, String content, String author) {
-        return jdbcTemplate.update("update schedule set content = ?, author = ?, updated_at = ? where id = ?", content, author, LocalDateTime.now(), id);
+    public int updateSchedule(Long id, String content, Long memberId) {
+        return jdbcTemplate.update("update schedule set content = ?, member_id = ?, updated_at = ? where id = ?", content, memberId, LocalDateTime.now(), id);
     }
 
     @Override
@@ -79,7 +85,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
                 return new ScheduleResponseDto(
                         rs.getLong("id"),
                         rs.getString("content"),
-                        rs.getString("author"),
+                        rs.getLong("member_id"),
                         rs.getTimestamp("created_at").toLocalDateTime(),
                         rs.getTimestamp("updated_at").toLocalDateTime()
                 );
@@ -94,7 +100,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
                 return new Schedule(
                         rs.getLong("id"),
                         rs.getString("content"),
-                        rs.getString("author"),
+                        rs.getLong("member_id"),
                         rs.getTimestamp("created_at").toLocalDateTime(),
                         rs.getTimestamp("updated_at").toLocalDateTime()
                 );
@@ -109,7 +115,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
                 return new Schedule(
                         rs.getLong("id"),
                         rs.getString("content"),
-                        rs.getString("author"),
+                        rs.getLong("member_id"),
                         rs.getString("password"),
                         rs.getTimestamp("created_at").toLocalDateTime(),
                         rs.getTimestamp("updated_at").toLocalDateTime()

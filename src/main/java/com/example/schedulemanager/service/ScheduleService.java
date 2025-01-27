@@ -9,11 +9,13 @@ import java.util.List;
 public interface ScheduleService {
     ScheduleResponseDto saveSchedule(ScheduleRequestDto saveRequestDto);
 
-    List<ScheduleResponseDto> findAllSchedules(String author, String modifiedDate);
+    List<ScheduleResponseDto> findAllSchedules(Long memberId, String modifiedDate);
 
     ScheduleResponseDto findByScheduleId(Long id);
 
-    ScheduleResponseDto updateSchedule(Long id, String password, String content, String author);
+    List<ScheduleResponseDto> findByScheduleMemberId(Long memberId);
+
+    ScheduleResponseDto updateSchedule(Long id, String password, String content, Long memberId);
 
     void deleteSchedule(Long id);
 

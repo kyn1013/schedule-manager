@@ -24,21 +24,27 @@ public class ScheduleController {
 
     @GetMapping
     public ResponseEntity<List<ScheduleResponseDto>> findAllSchedules(
-            @RequestParam("author") String author,
+            @RequestParam("member_id") Long memberId,
             @RequestParam("updated_at") String modifiedDate
     ){
-        return new ResponseEntity<>(scheduleService.findAllSchedules(author, modifiedDate), HttpStatus.OK);
+        return new ResponseEntity<>(scheduleService.findAllSchedules(memberId, modifiedDate), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ScheduleResponseDto> findMemoById(@PathVariable Long id) {
+    public ResponseEntity<ScheduleResponseDto> findScheduleById(@PathVariable Long id) {
 
         return new ResponseEntity<>(scheduleService.findByScheduleId(id), HttpStatus.OK);
     }
 
+    @GetMapping("/members")
+    public ResponseEntity<List<ScheduleResponseDto>> findScheduleByMemberId(@RequestParam("member_id") Long memberId) {
+
+        return new ResponseEntity<>(scheduleService.findByScheduleMemberId(memberId), HttpStatus.OK);
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<ScheduleResponseDto> updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDto requestDto) {
-        return new ResponseEntity<>(scheduleService.updateSchedule(id, requestDto.getPassword(), requestDto.getContent(), requestDto.getAuthor()), HttpStatus.OK);
+        return new ResponseEntity<>(scheduleService.updateSchedule(id, requestDto.getPassword(), requestDto.getContent(), requestDto.getMemberId()), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

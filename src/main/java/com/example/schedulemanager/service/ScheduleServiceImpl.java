@@ -18,13 +18,13 @@ public class ScheduleServiceImpl implements ScheduleService{
 
     @Override
     public ScheduleResponseDto saveSchedule(ScheduleRequestDto saveRequestDto) {
-        Schedule schedule = new Schedule(saveRequestDto.getContent(), saveRequestDto.getAuthor(), saveRequestDto.getPassword());
+        Schedule schedule = new Schedule(saveRequestDto.getContent(), saveRequestDto.getMemberId(), saveRequestDto.getPassword());
         return scheduleRepository.saveSchedule(schedule);
     }
 
     @Override
-    public List<ScheduleResponseDto> findAllSchedules(String author, String modifiedDate) {
-        return scheduleRepository.findScheduleByAuthorOrModifiedDate(author, modifiedDate);
+    public List<ScheduleResponseDto> findAllSchedules(Long memberId, String modifiedDate) {
+        return scheduleRepository.findScheduleByAuthorOrModifiedDate(memberId, modifiedDate);
     }
 
     @Override
@@ -34,14 +34,19 @@ public class ScheduleServiceImpl implements ScheduleService{
     }
 
     @Override
-    public ScheduleResponseDto updateSchedule(Long id, String password, String content, String author) {
+    public List<ScheduleResponseDto> findByScheduleMemberId(Long memberId) {
+        return scheduleRepository.findScheduleByMemberIdOrElseThrow(memberId);
+    }
+
+    @Override
+    public ScheduleResponseDto updateSchedule(Long id, String password, String content, Long memberId) {
         // 수정할 일정의 비밀번호 조회
         Schedule schedule = scheduleRepository.findSchedulePasswordByIdOrElseThrow(id);
         if (!schedule.getPassword().equals(password)){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "비밀번호가 일치하지 않습니다");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "비밀번호가 일치하지 않습니다");
         }
 
-        int updatedRow = scheduleRepository.updateSchedule(id, content, author);
+        int updatedRow = scheduleRepository.updateSchedule(id, content, memberId);
         if (updatedRow == 0) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "수정된 데이터가 없습니다");
         }

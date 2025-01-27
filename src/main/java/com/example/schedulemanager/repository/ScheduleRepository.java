@@ -7,10 +7,11 @@ import java.util.List;
 
 public interface ScheduleRepository {
     ScheduleResponseDto saveSchedule(Schedule schedule);
-    List<ScheduleResponseDto> findScheduleByAuthorOrModifiedDate(String author, String modifiedDate);
+    List<ScheduleResponseDto> findScheduleByAuthorOrModifiedDate(Long memberId, String modifiedDate);
     Schedule findScheduleByIdOrElseThrow(Long id);
+    List<ScheduleResponseDto> findScheduleByMemberIdOrElseThrow(Long memberId);
     Schedule findSchedulePasswordByIdOrElseThrow(Long id);
-    int updateSchedule(Long id, String content, String author);
+    int updateSchedule(Long id, String content, Long memberId);
     int deleteSchedule(Long id);
 
 }
