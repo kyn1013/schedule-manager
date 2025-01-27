@@ -1,11 +1,16 @@
 package com.example.schedulemanager.repository;
 
-import com.example.schedulemanager.dto.ScheduleSaveResponseDto;
+import com.example.schedulemanager.dto.ScheduleResponseDto;
 import com.example.schedulemanager.entity.Schedule;
 
 import java.util.List;
 
 public interface ScheduleRepository {
-    ScheduleSaveResponseDto saveSchedule(Schedule schedule);
-    List<ScheduleSaveResponseDto> findScheduleByAuthorOrModifiedDate(String author, String modifiedDate);
+    ScheduleResponseDto saveSchedule(Schedule schedule);
+    List<ScheduleResponseDto> findScheduleByAuthorOrModifiedDate(String author, String modifiedDate);
+    Schedule findScheduleByIdOrElseThrow(Long id);
+    Schedule findSchedulePasswordByIdOrElseThrow(Long id);
+    int updateSchedule(Long id, String content, String author);
+    int deleteSchedule(Long id);
+
 }

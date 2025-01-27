@@ -1,10 +1,9 @@
 package com.example.schedulemanager.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-public class ScheduleSaveRequestDto {
+public class ScheduleRequestDto {
     private String author;
     private String content;
     private String password;
