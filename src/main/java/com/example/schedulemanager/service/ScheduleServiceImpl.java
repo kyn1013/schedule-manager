@@ -1,15 +1,21 @@
 package com.example.schedulemanager.service;
 
+import com.example.schedulemanager.dto.SchedulePagingResponseDto;
 import com.example.schedulemanager.dto.ScheduleRequestDto;
 import com.example.schedulemanager.dto.ScheduleResponseDto;
 import com.example.schedulemanager.entity.Schedule;
 import com.example.schedulemanager.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -62,5 +68,18 @@ public class ScheduleServiceImpl implements ScheduleService{
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id);
         }
     }
+
+    @Override
+    public List<ScheduleResponseDto> getScheduleList() {
+        return null;
+    }
+
+    @Override
+    public Page<SchedulePagingResponseDto> list(int page, int size) {
+        int count = scheduleRepository.findScheduleSize();
+        Pageable pageable = PageRequest.of(page, size);
+        return new PageImpl<>(scheduleRepository.findSchedules(pageable.getOffset(), pageable.getPageSize()), pageable, count);
+    }
+
 
 }

@@ -1,6 +1,8 @@
 package com.example.schedulemanager.repository;
 
+import com.example.schedulemanager.dto.SchedulePagingResponseDto;
 import com.example.schedulemanager.dto.ScheduleResponseDto;
+import com.example.schedulemanager.entity.Member;
 import com.example.schedulemanager.entity.Schedule;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -44,6 +46,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
 
     @Override
     public List<ScheduleResponseDto> findScheduleByAuthorOrModifiedDate(Long memberId, String modifiedDate) {
+        // query() 메서드는 여러 행을 가져오는 데 사용
         return jdbcTemplate.query(
                 "select id, content, member_id, created_at, updated_at from schedule " +
                         "where member_id = ? || date(updated_at) = ?  || member_id != ? || date(updated_at) != ? order by updated_at desc",
@@ -75,6 +78,23 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
     @Override
     public int deleteSchedule(Long id) {
         return jdbcTemplate.update("delete from schedule where id = ?", id);
+    }
+
+    @Override
+    public List<SchedulePagingResponseDto> findSchedules(Long offset, int size) {
+        return jdbcTemplate.query("select s.id, s.content, m.name, s.created_at, s.updated_at from schedule as s inner join member as m on s.member_id = m.id limit ?, ?", scheduleRowMapperV4(), offset, size);
+    }
+
+    @Override
+    public int findScheduleSize() {
+        // 단일 값을 반환
+        return jdbcTemplate.queryForObject("select count(*) from schedule", Integer.class);
+    }
+
+    @Override
+    public Member findMemberById(Long memberId) {
+        List<Member> result = jdbcTemplate.query("select * from member where = ?", memberRowMapperV1(), memberId);
+        return result.stream().findAny().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + memberId));
     }
 
 
@@ -117,6 +137,36 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
                         rs.getString("content"),
                         rs.getLong("member_id"),
                         rs.getString("password"),
+                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        rs.getTimestamp("updated_at").toLocalDateTime()
+                );
+            }
+        };
+    }
+
+    public RowMapper<SchedulePagingResponseDto> scheduleRowMapperV4(){
+        return new RowMapper<SchedulePagingResponseDto>() {
+            @Override
+            public SchedulePagingResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new SchedulePagingResponseDto(
+                        rs.getLong("id"),
+                        rs.getString("content"),
+                        rs.getString("name"),
+                        rs.getTimestamp("created_at").toLocalDateTime(),
+                        rs.getTimestamp("updated_at").toLocalDateTime()
+                );
+            }
+        };
+    }
+
+    public RowMapper<Member> memberRowMapperV1(){
+        return new RowMapper<Member>() {
+            @Override
+            public Member mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new Member(
+                        rs.getLong("id"),
+                        rs.getString("name"),
+                        rs.getString("email"),
                         rs.getTimestamp("created_at").toLocalDateTime(),
                         rs.getTimestamp("updated_at").toLocalDateTime()
                 );

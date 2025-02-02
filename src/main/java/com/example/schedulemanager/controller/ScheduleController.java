@@ -1,14 +1,20 @@
 package com.example.schedulemanager.controller;
 
+import com.example.schedulemanager.dto.SchedulePagingResponseDto;
 import com.example.schedulemanager.dto.ScheduleRequestDto;
 import com.example.schedulemanager.dto.ScheduleResponseDto;
 import com.example.schedulemanager.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -51,5 +57,11 @@ public class ScheduleController {
     public ResponseEntity<Void> deleteSchedule(@PathVariable Long id) {
         scheduleService.deleteSchedule(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/paging")
+    public ResponseEntity<Page<SchedulePagingResponseDto>> list(@RequestParam("page") int page, @RequestParam("size") int size){
+        Page<SchedulePagingResponseDto> list = scheduleService.list(page, size);
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }
