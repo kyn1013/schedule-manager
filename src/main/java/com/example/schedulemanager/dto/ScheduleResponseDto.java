@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 public class ScheduleResponseDto {
     private Long id;
     private String content;
-    private String author;
+    private Long memberId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public ScheduleResponseDto(Schedule schedule){
         this.id = schedule.getId();
         this.content = schedule.getContent();
-        this.author = schedule.getAuthor();
+        this.memberId = schedule.getMemberId();
         this.createdAt = schedule.getCreateDate();
         this.updatedAt = schedule.getModifiedDate();
     }
