@@ -13,15 +13,15 @@ import java.util.Map;
 public interface ScheduleService {
     ScheduleResponseDto saveSchedule(ScheduleRequestDto saveRequestDto);
 
-    List<ScheduleResponseDto> findAllSchedules(Long memberId, String modifiedDate);
+    List<ScheduleResponseDto> findAllSchedules(String memberId, String modifiedDate);
 
-    ScheduleResponseDto findByScheduleId(Long id);
+    ScheduleResponseDto findByScheduleId(String id);
 
-    List<ScheduleResponseDto> findByScheduleMemberId(Long memberId);
+    List<ScheduleResponseDto> findByScheduleMemberId(String memberId);
 
-    ScheduleResponseDto updateSchedule(Long id, String password, String content, Long memberId);
+    ScheduleResponseDto updateSchedule(String id, String password, String content, Long memberId);
 
-    void deleteSchedule(Long id);
+    void deleteSchedule(String id, String password);
 
     List<ScheduleResponseDto> getScheduleList();
 

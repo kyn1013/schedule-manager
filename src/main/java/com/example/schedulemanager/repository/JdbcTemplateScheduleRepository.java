@@ -1,5 +1,6 @@
 package com.example.schedulemanager.repository;
 
+import com.example.schedulemanager.common.exception.ScheduleNotFoundException;
 import com.example.schedulemanager.dto.SchedulePagingResponseDto;
 import com.example.schedulemanager.dto.ScheduleResponseDto;
 import com.example.schedulemanager.entity.Member;
@@ -19,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.example.schedulemanager.common.code.ErrorCode.SCHEDULE_NOT_FOUND_EXCEPTION;
 
 @Repository
 public class JdbcTemplateScheduleRepository implements ScheduleRepository {
@@ -56,7 +59,7 @@ public class JdbcTemplateScheduleRepository implements ScheduleRepository {
     @Override
     public Schedule findScheduleByIdOrElseThrow(Long id) {
         List<Schedule> result = jdbcTemplate.query("select * from schedule where id = ?", scheduleRowMapperV2(), id);
-        return result.stream().findAny().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Does not exist id = " + id));
+        return result.stream().findAny().orElseThrow(() -> new ScheduleNotFoundException(SCHEDULE_NOT_FOUND_EXCEPTION));
     }
 
     @Override
